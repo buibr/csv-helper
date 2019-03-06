@@ -31,4 +31,13 @@ Usage
 Once the extension is installed, simply use it in your code by  :
 
 ```php
-<?= \buibr\csvhelper\AutoloadExample::widget(); ?>```
+<?php 
+use buibr\csvhelper\CsvParser; 
+
+
+$parser = new CsvParser('path/to/file');
+
+print_r($parser->toArray());
+
+?>
+```
