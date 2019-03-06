@@ -28,16 +28,54 @@ to the require section of your `composer.json` file.
 Usage
 -----
 
-Once the extension is installed, simply use it in your code by  :
+Get data as array of format [$key=>$value]:
 
 ```php
 <?php 
 use buibr\csvhelper\CsvParser; 
 
-
 $parser = new CsvParser('path/to/file');
-
-print_r($parser->toArray());
+$data   = $parser->fromFile()->toArray();
 
 ?>
 ```
+
+or
+
+```php
+<?php 
+use buibr\csvhelper\CsvParser; 
+
+$data = (new CsvParser)->fromFile('path/to/file')->toArray();
+
+?>
+```
+
+Get only one column value as one dimensional array.
+
+Example
+```csv
+name,email,phone
+aaa,bbb,ccc
+ddd,eee,fff
+ggg,hhh,iii
+```
+
+run
+
+```php
+
+$data = (new CsvParser)->fromFile('path/to/file')->toColumn('email');
+
+```
+
+response 
+
+```php
+[
+    0 => "bbb",
+    1 => "eee",
+    2 => "hhh"
+]
+```
+
