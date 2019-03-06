@@ -1,0 +1,21 @@
+{
+    "name": "buibr/yii2-csv-helper",
+    "description": "Parser/Builder of CSV data to file/file to data",
+    "type": "library",
+    "keywords": ["yii2","extension","csv","import","export","parse","todata","todb"],
+    "license": "BSD-4-Clause",
+    "authors": [
+        {
+            "name": "Burhan Ibrahimi",
+            "email": "burhan@wflux.pro"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "~2.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "buibr\\csvhelper\\": ""
+        }
+    }
+}
