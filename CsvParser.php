@@ -73,6 +73,25 @@ class CsvParser extends \yii\base\Widget
     }
 
     /**
+     *  Parse data from file provided here or from class instantance
+     * @param stirng $data  the file to parse from.
+     * @return CsvParser $this
+     */
+    public function fromData( array &$data = null )
+    {
+        if(empty($data) && empty($this->data))
+        {
+            throw new \ErrorException("Data is not set.");
+        }
+
+        $this->data     = $data ? $data : $this->data;
+        $first          = current($this->data);
+        $this->headers  = \array_keys($first);
+
+        return $this;
+    }
+
+    /**
      * Parse full object to arrays with attached headers to each row.
      * @return array $data;
      */
@@ -103,11 +122,12 @@ class CsvParser extends \yii\base\Widget
             throw new \ErrorException("Column not specified.");
         }
 
-        if(!\in_array($column, $this->headers)){
-            throw new \ErrorException("This column is not found in headers");
-        }
+        $position = \array_search(trim($column), $this->headers);
 
-        $position = \array_search($column, $this->headers);
+        // if(!\in_array( trim($column), $this->headers)){
+        if( is_null($position) ) {
+            throw new \ErrorException("This '{$column}' column is not found in headers");
+        }
 
         $return = [];
         foreach($this->data as $id=>&$row)
@@ -120,6 +140,53 @@ class CsvParser extends \yii\base\Widget
 
         return $return;
 
+    }
+
+    /**
+     * Parse all elements and return only one column as specified  as key in array filled with $value.
+     * @param string $colum - the column to be return as single array
+     * @return array 
+     */
+    public function toColumnFill( $column = null, $value = null)
+    {
+        if(empty($column)){
+            throw new \ErrorException("Column not specified.");
+        }
+
+        $position = \array_search(trim($column), $this->headers);
+
+        // if(!\in_array( trim($column), $this->headers)){
+        if( is_null($position) ) {
+            throw new \ErrorException("This '{$column}' column is not found in headers");
+        }
+
+        $return = [];
+        foreach($this->data as $id=>&$row)
+        {
+            //  to array
+            $row                        = \str_getcsv($row, $this->delimeter, $this->enclosure);
+            $return[$row[$position]]    = $value;
+        }
+
+        return $return;
+
+    }
+
+    /**
+     * Parse all elements and return only one column as specified if exists.
+     * @param string $colum - the column to be return as single array
+     * @return array 
+     */
+    public function toContent()
+    {
+        $content = implode($this->delimeter, $this->headers). "\n";
+
+        foreach($this->data as &$row)
+        {
+            $content .= implode($this->delimeter, $row) . "\n";
+        }
+
+        return $content;
     }
 
 
