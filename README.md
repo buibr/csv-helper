@@ -12,6 +12,9 @@ Either run
 ```
 php composer.phar require --prefer-dist buibr/yii2-csv-helper "*"
 ```
+```
+composer require --prefer-dist buibr/yii2-csv-helper "*"
+```
 
 or add
 
