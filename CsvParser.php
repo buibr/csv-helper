@@ -173,7 +173,7 @@ class CsvParser extends \yii\base\Widget
     }
 
     /**
-     * Parse all elements and return only one column as specified if exists.
+     * Rebuild csv as content for download or print in raw.
      * @param string $colum - the column to be return as single array
      * @return array 
      */
@@ -188,8 +188,5 @@ class CsvParser extends \yii\base\Widget
 
         return $content;
     }
-
-
-    
 
 }

@@ -1,8 +1,8 @@
 {
-    "name": "buibr/yii2-csv-helper",
+    "name": "buibr/csv-helper",
     "description": "Parser/Builder of CSV data to file/file to data",
     "type": "library",
-    "keywords": ["yii2","extension","csv","import","export","parse","todata","todb"],
+    "keywords": ["extension","csv","import","export","parse","todata","todb", "csv to array", "csv to column", "csv to "],
     "license": "BSD-4-Clause",
     "authors": [
         {
