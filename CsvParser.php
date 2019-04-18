@@ -99,12 +99,11 @@ class CsvParser extends \yii\base\Widget
     {
         foreach($this->data as $id=>&$row)
         {
+            //  convert from utf16 to utf8
+            $row    = @iconv('UTF-8' , 'UTF-8' , $row);
+
             //  to array
             $row    = \str_getcsv($row, $this->delimeter, $this->enclosure);
-
-            //  convert from utf16 to utf8
-            $row    = @iconv('UTF-16LE' , 'UTF-8' , $row);
-
 
             //  attach keys to object.
             $this->data[$id]   = @array_combine($this->headers, $row);
