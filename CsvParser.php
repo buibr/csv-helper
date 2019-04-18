@@ -67,7 +67,7 @@ class CsvParser extends \yii\base\Widget
         $this->headers = str_getcsv($this->data[0]);
 
         //  remove the firs element as its headers
-        \array_shift($this->data);
+        @\array_shift($this->data);
 
         return $this;
     }
@@ -100,10 +100,14 @@ class CsvParser extends \yii\base\Widget
         foreach($this->data as $id=>&$row)
         {
             //  to array
-            $row               = \str_getcsv($row, $this->delimeter, $this->enclosure);
+            $row    = \str_getcsv($row, $this->delimeter, $this->enclosure);
+
+            //  convert from utf16 to utf8
+            $row    = @iconv('UTF-16LE' , 'UTF-8' , $row);
+
 
             //  attach keys to object.
-            $this->data[$id]   = array_combine($this->headers, $row);
+            $this->data[$id]   = @array_combine($this->headers, $row);
 
         }
 
