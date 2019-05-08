@@ -92,6 +92,30 @@ class CsvParser
     }
 
     /**
+     *  Parse data from string with comas ',' and "\n"
+     * @param stirng $data  the file to parse from.
+     * @return CsvParser $this
+     */
+    public function fromString( string &$data )
+    {
+        if(empty($data) && empty($this->data))
+        {
+            throw new \ErrorException("Data is not set.");
+        }
+
+        $this->data     = explode("\n", $data);
+
+        foreach($this->data as $key=>&$row){
+            $this->data[$key] = \str_getcsv($row);
+        }
+
+        $first          = current($this->data);
+        $this->headers  = \array_keys($first);
+
+        return $this;
+    }
+
+    /**
      * Parse full object to arrays with attached headers to each row.
      * @return array $data;
      */
