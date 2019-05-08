@@ -10,9 +10,7 @@
             "email": "burhan@wflux.pro"
         }
     ],
-    "require": {
-        "yiisoft/yii2": "~2.0.0"
-    },
+    "require": {},
     "autoload": {
         "psr-4": {
             "buibr\\csvhelper\\": ""
