@@ -93,7 +93,7 @@ class CsvParser
 
     /**
      *  Parse data from string with comas ',' and "\n"
-     * @param stirng $data  the file to parse from.
+     * @param stirng $data  the string to parse from.
      * @return CsvParser $this
      */
     public function fromString( string &$data )
@@ -105,12 +105,15 @@ class CsvParser
 
         $this->data     = explode("\n", $data);
 
-        foreach($this->data as $key=>&$row){
-            $this->data[$key] = \str_getcsv($row);
+        if(empty($this->data))
+        {
+            throw new \ErrorException("Empty file uploaded.");
         }
 
-        $first          = current($this->data);
-        $this->headers  = \array_keys($first);
+        $this->headers  = $this->headers = str_getcsv($this->data[0]);
+
+        //  remove the firs element as its headers
+        @\array_shift($this->data);
 
         return $this;
     }
