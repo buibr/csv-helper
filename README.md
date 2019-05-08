@@ -2,6 +2,7 @@ Yii2 CSV Helper
 ===============
 Parser/Builder of CSV data to file/file to data
 
+
 Installation
 ------------
 
@@ -10,23 +11,20 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```
-php composer.phar require --prefer-dist buibr/yii2-csv-helper "*"
-```
-```
 composer require --prefer-dist buibr/yii2-csv-helper "*"
 ```
 
 or add
 
 ```
-"buibr/yii2-csv-helper": "*"
+"buibr/csv-helper": "*"
 ```
 
 to the require section of your `composer.json` file.
 
 
 Usage
------
+------------
 
 Get data as array of format [$key=>$value]:
 

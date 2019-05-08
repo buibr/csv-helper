@@ -5,7 +5,7 @@ namespace buibr\csvhelper;
 /**
  * This is just an example.
  */
-class CsvParser extends \yii\base\Widget
+class CsvParser
 {
     /**
      * This is the file from where we get data.
@@ -99,11 +99,15 @@ class CsvParser extends \yii\base\Widget
     {
         foreach($this->data as $id=>&$row)
         {
+
+            //  detect encoding of the content
+            $enc    = @mb_detect_encoding($row, mb_detect_order(), TRUE);
+
             //  convert from utf16 to utf8
-            $row    = @iconv('UTF-8' , 'UTF-8' , $row);
+            $row    = @iconv($enc, 'UTF-8' , $row);
 
             //  to array
-            $row    = \str_getcsv($row, $this->delimeter, $this->enclosure);
+            $row    = @\str_getcsv($row, $this->delimeter, $this->enclosure);
 
             //  attach keys to object.
             $this->data[$id]   = @array_combine($this->headers, $row);
