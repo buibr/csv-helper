@@ -204,9 +204,9 @@ class CsvParser
         }
 
         $return = [];
-        foreach($this->data as $id=>&$row)
+        foreach($this->data as &$row)
         {
-            $return   = $this->data[$id][$position];
+            $return[]   = $row[$position];
         }
 
         return $return;
