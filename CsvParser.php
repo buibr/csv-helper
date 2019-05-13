@@ -57,14 +57,24 @@ class CsvParser
             throw new \ErrorException("File is not found");
         }
 
-        $this->data = \file($this->file);
+        $data = \file($this->file);
 
-        if(empty($this->data))
+        if(empty($data))
         {
             throw new \ErrorException("Empty file uploaded.");
         }
 
-        $this->headers = str_getcsv($this->data[0]);
+        foreach($data as $row){
+
+            //  remove not utf characters.
+            $content        = @iconv("UTF-8", "UTF-8//IGNORE", $row);
+
+            //  to array
+            $this->data[]   = \str_getcsv($content, $this->delimeter, $this->enclosure);
+        }
+
+        //  
+        $this->headers      = $this->data[0];
 
         //  remove the firs element as its headers
         @\array_shift($this->data);
@@ -72,13 +82,11 @@ class CsvParser
         return $this;
     }
 
-    /**
-     *  Parse data from file provided here or from class instantance
+    /** 
      * @param stirng $data  the file to parse from.
      * @return CsvParser $this
      */
-    public function fromData( array &$data = null )
-    {
+    public function fromData( array &$data = null ){
         if(empty($data) && empty($this->data))
         {
             throw new \ErrorException("Data is not set.");
@@ -92,25 +100,66 @@ class CsvParser
     }
 
     /**
-     *  Parse data from string with comas ',' and "\n"
-     * @param stirng $data  the string to parse from.
+     *  Parse data from array to this data.
+     *  
+     * Example
+     * ```php 
+     * $arr = [
+     *      [
+     *          "name"=>"burhan",
+     *          "sname"=>"ibraimi",
+     *      ],
+     *      [
+     *          "name"=>"test",
+     *          "sname"=>"test",
+     *      ]
+     * ];
+     * ```
+     * 
+     * @param stirng $data  the file to parse from.
      * @return CsvParser $this
      */
-    public function fromString( string &$data )
+    public function fromArray( array &$data )
     {
         if(empty($data) && empty($this->data))
         {
             throw new \ErrorException("Data is not set.");
         }
 
-        $this->data     = explode("\n", $data);
+        // get headers from 
+        $this->headers  = \array_values(current($data));
 
-        if(empty($this->data))
-        {
-            throw new \ErrorException("Empty file uploaded.");
+        foreach($data as &$v){
+            $this->data[] = \array_values($v);
         }
 
-        $this->headers  = $this->headers = str_getcsv($this->data[0]);
+        //  remove the firs element as its headers
+        @\array_shift($this->data);
+
+        return $this;
+    }
+
+    /**
+     *  Parse data from string or content
+     * @param stirng $data  the file to parse from.
+     * @return CsvParser $this
+     */
+    public function fromContent( string &$content )
+    {
+        if(empty($content)) {
+            throw new \ErrorException("Data is not set.");
+        }
+
+        $content        = @iconv("UTF-8", "UTF-8//IGNORE", $content);
+        $content        = explode("\n", $content);
+
+        foreach($content as $row){
+            $this->data[] = str_getcsv($row);
+        }
+
+        //  seperate headers from data.
+        $first          = current($this->data);
+        $this->headers  = \array_values($first);
 
         //  remove the firs element as its headers
         @\array_shift($this->data);
@@ -124,28 +173,18 @@ class CsvParser
      */
     public function toArray()
     {
-        foreach($this->data as $id=>&$row)
+        $arr = [];
+        foreach($this->data as &$row)
         {
-
-            //  detect encoding of the content
-            $enc    = @mb_detect_encoding($row, mb_detect_order(), TRUE);
-
-            //  convert from utf16 to utf8
-            $row    = @iconv($enc, 'UTF-8' , $row);
-
-            //  to array
-            $row    = @\str_getcsv($row, $this->delimeter, $this->enclosure);
-
             //  attach keys to object.
-            $this->data[$id]   = @array_combine($this->headers, $row);
-
+            $arr[]   = array_combine($this->headers, $row);
+            
         }
 
-        return $this->data;
-
+        return $arr;
     }
 
-    /**
+    /** 
      * Parse all elements and return only one column as specified if exists.
      * @param string $colum - the column to be return as single array
      * @return array 
