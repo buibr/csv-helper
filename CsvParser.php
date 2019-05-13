@@ -195,20 +195,18 @@ class CsvParser
             throw new \ErrorException("Column not specified.");
         }
 
+        //
         $position = \array_search(trim($column), $this->headers);
 
         // if(!\in_array( trim($column), $this->headers)){
-        if( is_null($position) ) {
+        if(is_null($position) ) {
             throw new \ErrorException("This '{$column}' column is not found in headers");
         }
 
         $return = [];
         foreach($this->data as $id=>&$row)
         {
-            //  to array
-            $row               = \str_getcsv($row, $this->delimeter, $this->enclosure);
-
-            $return[]   = $row[$position];
+            $return   = $this->data[$id][$position];
         }
 
         return $return;
