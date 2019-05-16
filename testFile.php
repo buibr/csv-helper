@@ -9,7 +9,7 @@ use \buibr\csvhelper\CsvParser;
 // die;
 
 $data = (new CsvParser)->fromFile($argv[1])->toArray();
-$data = (new CsvParser)->fromFile($argv[1])->toColumn('Domain');
+// $data = (new CsvParser)->fromFile($argv[1])->toColumn('Domain');
 
 // $arr = [
 //     [
