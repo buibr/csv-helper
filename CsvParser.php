@@ -46,7 +46,7 @@ class CsvParser
     /**
      * 
      */
-    public function __construct( $file )
+    public function __construct( $file = null )
     {   
         if(empty($file)){
             return $this;
