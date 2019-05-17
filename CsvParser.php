@@ -42,18 +42,19 @@ class CsvParser
      */
     protected $utf8 = true;
 
-
+    
     /**
      * 
      */
     public function __construct( $file = null )
-    {   
+    {
         if(empty($file)){
             return $this;
         }
 
         return $this->fromFile($file);
     }
+
 
     /**
      *  Parse data from file provided here or from class instantance
