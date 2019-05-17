@@ -32,17 +32,19 @@ class CsvParser
      */
     protected $enclosure = false;
 
+    
     /**
      *  
      */
     protected $encoding = true;
+
 
     /**
      * Convert all to utf8
      */
     protected $utf8 = true;
 
-    
+
     /**
      * 
      */
@@ -65,7 +67,7 @@ class CsvParser
     {
         if(empty($file) && empty($this->file))
         {
-            throw new \ErrorException("File is not defined.");
+            throw new \ErrorException("File is not set.");
         }
 
         $this->file = $file ? $file : $this->file;
@@ -88,7 +90,7 @@ class CsvParser
         //  split lines 
         $data     = explode("\n",$data);
 
-        return $this->toParse($data);
+        return $this->parse($data);
 
     }
 
@@ -117,7 +119,7 @@ class CsvParser
         //  split lines 
         $data     = explode("\n",$data);
 
-        return $this->toParse($data);
+        return $this->parse($data);
     }
 
 
@@ -175,11 +177,12 @@ class CsvParser
         return $this;
     }
 
+
     /**
      * Make normal rrows to data arrays
      * @return CsvParser $this
      */
-    private function toParse( array &$data){
+    private function parse( array &$data){
         //  make data.
         foreach($data as &$row){
 
@@ -380,4 +383,6 @@ class CsvParser
     public function getEncoding(){
         return $this->encoding;
     }
+
+
 }
