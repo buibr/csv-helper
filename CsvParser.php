@@ -114,7 +114,7 @@ class CsvParser
         $this->encoding = @mb_detect_encoding($data, mb_list_encodings(), true);
 
         //  split lines 
-        $data     = explode("\n",$content);
+        $data     = explode("\n",$data);
 
         return $this->toParse($data);
     }
@@ -219,6 +219,52 @@ class CsvParser
 
 
     /** 
+     * Retrun only set columns to be returned
+     * @param string $colum - the column to be return as single array
+     * @return array 
+     */
+    public function toColumns( array $columns, bool $associative = false )
+    {
+        if(empty($columns)){
+            throw new \ErrorException("Column not specified.");
+        }
+
+        //  
+        $indexes = [];
+        foreach($columns as $col){
+
+            $cidx = \array_search(trim($col), $this->headers);
+
+            if($cidx === false) 
+            {
+                throw new \ErrorException("This '{$col}' column is not found in headers");
+            }
+
+            $indexes[$col] = $cidx;
+        }
+
+        if(empty($indexes)){
+            throw new \ErrorException("Not found ay column in headers.");
+        }
+
+        $return = [];
+        foreach($this->data as $id=>&$row)
+        {
+            // $return[$id] = $row[$indexes];
+            foreach($indexes as $idkey=>$index){
+                if($associative)
+                    $return[$id][$idkey] = $row[$index];
+                else
+                    $return[$id][$index] = $row[$index];
+            }
+        }
+
+        return $return;
+
+    }
+
+
+    /** 
      * Parse all elements and return only one column as specified if exists.
      * @param string $colum - the column to be return as single array
      * @return array 
@@ -300,10 +346,21 @@ class CsvParser
 
     /**
      * Returns headers in one dimensional array
+     * @param  array = php function  to fixx headers.
      * @return array
      */
-    public function getHeaders()
+    public function getHeaders( array $functions = [])
     {
+        if(empty($functions)){
+            return $this->headers;
+        }
+
+        foreach($this->headers as $key=>$header){
+            foreach($functions as $func){
+                $this->headers[$key] = $func($header);
+            }
+        }
+
         return $this->headers;
     }
 

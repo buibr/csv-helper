@@ -15,5 +15,8 @@
         "psr-4": {
             "buibr\\csvhelper\\": ""
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.1"
     }
 }
