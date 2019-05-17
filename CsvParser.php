@@ -413,7 +413,7 @@ class CsvParser implements \Iterator, \Countable
      */
     public function current( $assoc = false) {
         if($assoc){
-            return \array_combine($this->headers,$this->data[$this->position]);
+            return \array_combine($this->headers, $this->data[$this->position]);
         }
 
         return $this->data[$this->position];

@@ -79,16 +79,12 @@ response
 
 
 From 1.5.4 Get only neded columns.
+------------
 
 ```php
 
 $data = (new CsvParser('path/to/file'))->toColumns(['email', 'phone']);
 
-```
-
-response 
-
-```php
 [
     0 => [
         "bbb",
@@ -104,4 +100,56 @@ response
     ]
 ]
 ```
+
+As Array
+
+```php
+
+$csv    = new CsvParser('path/to/file');
+
+//  get firs telement 
+$first  = $csv->current();
+Array
+(
+    [0] => John
+    [1] => Doe
+    [2] => johndoe@test.test
+    [3] => 003344003203
+    [4] => Unknown
+)
+
+//  returns associative array with data of current position
+$assoc  = $csv->current(true);
+Array
+(
+    [Firstname] => John
+    [Lastname] => Doe
+    [Email] => johndoe@test.test
+    [Phone] => 003344003203
+    [Adress] => Unknown
+)
+
+
+//  get next element 
+$csv->next();
+$second = $csv->current();
+
+
+```
+
+OR
+
+```php
+
+$csv    = new CsvParser('path/to/file');
+
+while( $csv->valid() ){
+
+    $item = $csv->current();
+
+    ...
+    
+    $csv->next();
+}
+
 
