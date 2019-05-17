@@ -1,4 +1,4 @@
-Yii2 CSV Helper
+CSV Helper
 ===============
 Parser/Builder of CSV data to file/file to data
 
@@ -11,7 +11,7 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```
-composer require --prefer-dist buibr/yii2-csv-helper "*"
+composer require --prefer-dist buibr/csv-helper "^1.5"
 ```
 
 or add
