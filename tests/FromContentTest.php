@@ -68,5 +68,30 @@ class FromContentTest extends TestCase
     }
 
 
+    /**
+     * @depends                  testContent
+     */
+    public function testIteratorFunctions(CsvParser $csv) {
+
+        $current = $csv->current();
+
+
+        $csv->next();
+        $next = $csv->current();
+        $this->assertNotEquals($current, $next);
+
+
+        $csv->rewind();
+        $first = $csv->current();
+        $this->assertEquals($current, $first);
+
+
+        // associative array form current.
+        $assoc = $csv->current(true);
+        $this->assertArrayHasKey('Firstname', $assoc);
+
+    }
+
+
 }
 ?>
