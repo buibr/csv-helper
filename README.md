@@ -77,3 +77,31 @@ response
 ]
 ```
 
+
+From 1.5.4 Get only neded columns.
+
+```php
+
+$data = (new CsvParser('path/to/file'))->toColumns(['email', 'phone']);
+
+```
+
+response 
+
+```php
+[
+    0 => [
+        "bbb",
+        "ccc"
+    ]
+    1 => [
+        "eee",
+        "fff"
+    ]
+    2 => [
+        "hhh",
+        "iii"
+    ]
+]
+```
+

@@ -2,10 +2,13 @@
 
 namespace buibr\csvhelper;
 
+use Countable;
+use Iterator;
+
 /**
  * This is just an example.
  */
-class CsvParser
+class CsvParser implements \Iterator, \Countable
 {
     /**
      * This is the file from where we get data.
@@ -32,7 +35,7 @@ class CsvParser
      */
     protected $enclosure = false;
 
-    
+
     /**
      *  
      */
@@ -46,14 +49,24 @@ class CsvParser
 
 
     /**
+     *  ITERATOR POSITION
+     */
+    private $position;
+
+
+    /**
      * 
      */
     public function __construct( $file = null )
     {
+        //  Iterator position
+        $this->position = 0;
+
         if(empty($file)){
             return $this;
         }
 
+        //  parse the file.
         return $this->fromFile($file);
     }
 
@@ -385,4 +398,40 @@ class CsvParser
     }
 
 
+    /**
+     * Reset the count to first position.
+     */
+    public function rewind() {
+        $this->position = 0;
+    }
+
+    /**
+     * One element by corrent position.
+     * @param bool $assoc - return the data as associative array or as one dimension array
+     *  - true = associative array
+     *  - false = one dimensional array.
+     */
+    public function current( $assoc = false) {
+        if($assoc){
+            return \array_combine($this->headers,$this->data[$this->position]);
+        }
+
+        return $this->data[$this->position];
+    }
+
+    public function key() {
+        return $this->position;
+    }
+
+    public function next() {
+        ++$this->position;
+    }
+
+    public function valid() {
+        return isset($this->data[$this->position]);
+    }
+
+    public function count(){
+        return count($this->data);
+    }
 }
