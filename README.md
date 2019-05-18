@@ -145,10 +145,17 @@ $csv    = new CsvParser('path/to/file');
 
 while( $csv->valid() ){
 
-    $item = $csv->current();
-
-    ...
+    //  get current item as array.
+    $item = $csv->current(true);
     
+    //  get the the value of Firstname column from current record.
+    $name = $csv->column('Firstname');
+
+    // get some of columns 
+    $fullname = \implode(' ', $csv->columns(['Firstname','Lastname']));
+
+    //  
+
     $csv->next();
 }
 ```

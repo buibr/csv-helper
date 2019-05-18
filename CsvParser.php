@@ -399,6 +399,10 @@ class CsvParser implements \Iterator, \Countable
 
 
     /**
+     *      SINGLE RECORD FUNCTIONS.
+     */
+
+    /**
      * Reset the count to first position.
      */
     public function rewind() {
@@ -433,5 +437,53 @@ class CsvParser implements \Iterator, \Countable
 
     public function count(){
         return count($this->data);
+    }
+
+    public function columns(array $columns=[], $associative = false){
+        if(empty($columns)){
+            throw new \ErrorException("Column not specified.");
+        }
+
+        $indexes = [];
+        foreach($columns as $col){
+
+            $cidx = \array_search(trim($col), $this->headers);
+
+            if($cidx === false) {
+                throw new \ErrorException("This '{$col}' column is not found in headers");
+            }
+
+            $indexes[$col] = $cidx;
+        }
+
+        // $return[$id] = $row[$indexes];
+        $return = [];
+        // $return[$id] = $row[$indexes];
+        foreach($indexes as $idkey=>$index){
+            if($associative)
+                $return[$idkey] = $this->current()[$index];
+            else
+                $return[$index] = $this->current()[$index];
+        }
+
+        return $return;
+    }
+
+
+    public function column(string $column) {
+        if(empty($column)){
+            throw new \ErrorException("Column not specified.");
+        }
+
+        //  
+        $cidx = \array_search($column, $this->headers);
+
+        //  
+        if(is_null($cidx) ) 
+        {
+            throw new \ErrorException("This '{$column}' column is not found in headers");
+        }
+
+        return $this->current()[$cidx];
     }
 }

@@ -21,7 +21,11 @@ $csv = new CsvParser( __DIR__ . '/tests/data/xml.xml');
 while( !empty($csv->valid()) ){
 
     print('<pre>');
-    print_r($csv->current());
+    print_r([
+        $csv->column('Firstname'), 
+        \implode(' ',$csv->columns(['Firstname','Lastname'])),
+        $csv->current(),
+    ]);
     print('</pre>');
     
     $csv->next();
