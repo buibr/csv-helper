@@ -314,6 +314,35 @@ class CsvParser implements \Iterator, \Countable
 
     /**
      * Parse all elements and return only one column as specified  as key in array filled with $value.
+     * 
+     * example if we have:
+     * 
+     * ```csv
+     * account,name,email,
+     * 109,burhan,burhan@csv.pro
+     * 101,burhan,burhan@csv.pro
+     * 102,burhan,burhan@csv.pro
+     * 103,burhan,burhan@csv.pro
+     * ```
+     * 
+     * and we call :
+     * 
+     * ```php
+     * (new CsvParser)->fromFile('path/to/csv')->toColumnFill('account', null);
+     * ```
+     * 
+     * the resoult will be:
+     * 
+     * ```
+     * Array
+     * (
+     *  [109] => 
+     *  [101] => 
+     *  [102] => 
+     *  [103] => 
+     * )
+     * 
+     * 
      * @param string $colum - the column to be return as single array
      * @return array 
      */
@@ -333,15 +362,12 @@ class CsvParser implements \Iterator, \Countable
         $return = [];
         foreach($this->data as $id=>&$row)
         {
-            //  to array
-            $row                        = \str_getcsv($row, $this->delimeter, $this->enclosure);
             $return[$row[$position]]    = $value;
         }
 
         return $return;
 
     }
-
 
     /**
      * Rebuild csv as content for download or print in raw.
@@ -439,10 +465,7 @@ class CsvParser implements \Iterator, \Countable
         return count($this->data);
     }
 
-    public function columns(array $columns=[], $associative = false){
-        if(empty($columns)){
-            throw new \ErrorException("Column not specified.");
-        }
+    public function columns(array $columns, $associative = false){
 
         $indexes = [];
         foreach($columns as $col){
@@ -471,10 +494,6 @@ class CsvParser implements \Iterator, \Countable
 
 
     public function column(string $column) {
-        if(empty($column)){
-            throw new \ErrorException("Column not specified.");
-        }
-
         //  
         $cidx = \array_search($column, $this->headers);
 
