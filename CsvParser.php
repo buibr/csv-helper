@@ -235,9 +235,6 @@ class CsvParser implements \Iterator, \Countable
             $this->data[] = \array_values($v);
         }
 
-        //  remove the firs element as its headers
-        @\array_shift($this->data);
-
         return $this;
     }
 
