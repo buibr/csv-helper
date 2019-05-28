@@ -154,12 +154,16 @@ class CsvParser implements \Iterator, \Countable
      * ```php 
      * $arr = [
      *      [
-     *          "name"=>"burhan",
-     *          "sname"=>"ibraimi",
+     *          "name",
+     *          "sname",
      *      ],
      *      [
-     *          "name"=>"test",
-     *          "sname"=>"test",
+     *          "burhan",
+     *          "ibraimi",
+     *      ],
+     *      [
+     *          "test name",
+     *          "test sname",
      *      ]
      * ];
      * ```
@@ -177,7 +181,54 @@ class CsvParser implements \Iterator, \Countable
         }
 
         // get headers from 
-        $this->headers  = \array_values(current($data));
+        $this->headers  = \array_values(\current($data));
+
+        //  remove headers
+        \array_shift($data);
+
+        //  
+        foreach($data as &$v){
+            $this->data[] = \array_values($v);
+        }
+
+        //  remove the firs element as its headers
+        @\array_shift($this->data);
+
+        return $this;
+    }
+
+
+    /**
+     *  Parse data from array to this data.
+     *  
+     * Example
+     * ```php 
+     * $arr = [
+     *      [
+     *          "name"=>"burhan",
+     *          "sname"=>"ibraimi",
+     *      ],
+     *      [
+     *          "name"=>"test",
+     *          "sname"=>"test",
+     *      ]
+     * ];
+     * ```
+     * 
+     * this function is not posible with encoding.
+     * 
+     * @param stirng $data  the file to parse from.
+     * @return CsvParser $this
+     */
+    public function fromAssocArray( array &$data )
+    {
+        if(empty($data))
+        {
+            throw new \ErrorException("Data array is not set.");
+        }
+
+        // get headers from 
+        $this->headers  = \array_keys(current($data));
 
         //  
         foreach($data as &$v){
