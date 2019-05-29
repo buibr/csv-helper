@@ -252,7 +252,7 @@ class CsvParser implements \Iterator, \Countable
             }
 
             //  to array
-            $this->data[]   = \str_getcsv($row, $this->delimeter, $this->enclosure);
+            $this->data[]   = @\str_getcsv($row, $this->delimeter, $this->enclosure);
         }
 
         //  
@@ -274,8 +274,11 @@ class CsvParser implements \Iterator, \Countable
         $arr = [];
         foreach($this->data as &$row)
         {
+            if(empty($row)){
+                continue;
+            }
             //  attach keys to object.
-            $arr[]   = array_combine($this->headers, $row);
+            $arr[]   = @\array_combine($this->headers, $row);
             
         }
 
@@ -428,6 +431,10 @@ class CsvParser implements \Iterator, \Countable
 
         foreach($this->data as &$row)
         {
+            if(empty($row)){
+                continue;
+            }
+
             $content .= implode($this->delimeter, $row) . "\n";
         }
 
@@ -446,8 +453,10 @@ class CsvParser implements \Iterator, \Countable
             return $this->headers;
         }
 
-        foreach($this->headers as $key=>$header){
-            foreach($functions as $func){
+        foreach($this->headers as $key=>$header)
+        {
+            foreach($functions as $func)
+            {
                 $this->headers[$key] = $func($header);
             }
         }
@@ -490,8 +499,9 @@ class CsvParser implements \Iterator, \Countable
      *  - false = one dimensional array.
      */
     public function current( $assoc = false) {
-        if($assoc){
-            return \array_combine($this->headers, $this->data[$this->position]);
+        
+        if($assoc) {
+            return @\array_combine($this->headers, $this->data[$this->position]);
         }
 
         return $this->data[$this->position];
@@ -539,7 +549,6 @@ class CsvParser implements \Iterator, \Countable
 
         return $return;
     }
-
 
     public function column(string $column) {
         //  
