@@ -247,6 +247,10 @@ class CsvParser implements \Iterator, \Countable
         //  make data.
         foreach($data as &$row){
 
+            if(empty($row)){
+                continue;
+            }
+
             if($this->utf8) {
                 $row        = @mb_convert_encoding($row, "UTF-8", $this->encoding);
             }
