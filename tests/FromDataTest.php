@@ -93,5 +93,15 @@ class FromDataTest extends TestCase
     }
 
 
+    /**
+     * @depends                  testContent
+     */
+    public function testToContentColumns(CsvParser $csv) {
+        $res = $csv->toContentColumns(['Email','Phone']);
+
+        $have = "Email,Phone\nburhan@wflux.pro,38971789062\njohndoe@test.test,003344003203\n";
+
+        $this->assertEquals($res, $have);
+    }
 }
 ?>

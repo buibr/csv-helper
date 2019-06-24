@@ -463,7 +463,7 @@ class CsvParser implements \Iterator, \Countable
 
         foreach($rows as &$row)
         {
-            if(empty($row)){
+            if(empty($row)) {
                 continue;
             }
 
