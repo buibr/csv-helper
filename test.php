@@ -6,6 +6,12 @@ use buibr\csvhelper\CsvParser;
 
 $csv = new CsvParser( __DIR__ . '/tests/data/xml.xml');
 
+
+print('<pre>');
+print_r($csv->toContentColumns(['Email','Phone']));
+print('</pre>');
+die;
+
 // $csv->fromFile( __DIR__ . '/tests/data/xml.xml');
 
 // $csv->next();
@@ -17,18 +23,17 @@ $csv = new CsvParser( __DIR__ . '/tests/data/xml.xml');
 // print('</pre>');
 
 
+// while( !empty($csv->valid()) ){
 
-while( !empty($csv->valid()) ){
-
-    print('<pre>');
-    print_r([
-        $csv->column('Firstname'), 
-        \implode(' ',$csv->columns(['Firstname','Lastname'])),
-        $csv->current(),
-    ]);
-    print('</pre>');
+//     print('<pre>');
+//     print_r([
+//         $csv->column('Firstname'), 
+//         \implode(' ',$csv->columns(['Firstname','Lastname'])),
+//         $csv->current(),
+//     ]);
+//     print('</pre>');
     
-    $csv->next();
-}
+//     $csv->next();
+// }
 
-die;
+// die;

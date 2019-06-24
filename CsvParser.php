@@ -35,23 +35,25 @@ class CsvParser implements \Iterator, \Countable
      */
     protected $enclosure = false;
 
-
     /**
      *  
      */
     protected $encoding = true;
-
 
     /**
      * Convert all to utf8
      */
     protected $utf8 = true;
 
-
     /**
      *  ITERATOR POSITION
      */
     private $position;
+
+    /**
+     * Wheter to skip or not empty records from file.
+     */
+    protected $skip_on_empty;
 
 
     /**
@@ -440,6 +442,32 @@ class CsvParser implements \Iterator, \Countable
             }
 
             $content .= implode($this->delimeter, $row) . "\n";
+        }
+
+        return $content;
+    }
+
+    /**
+     * Rebuild csv as content for download or print in raw with only defined columns.
+     * @param string $colum - the column to be return as single array
+     * @return array 
+     */
+    public function toContentColumns( array $columns = [] )
+    {
+        if(empty($columns)) {
+            throw new \ErrorException("No columns have ben set. Please use toContent for full conver to content.");
+        }
+        
+        $rows       = $this->toColumns($columns, true);
+        $content    = implode($this->delimeter, \array_keys($rows[0])). "\n";
+
+        foreach($rows as &$row)
+        {
+            if(empty($row)){
+                continue;
+            }
+
+            $content .= implode($this->delimeter, \array_values($row) ) . "\n";
         }
 
         return $content;
