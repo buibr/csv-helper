@@ -66,9 +66,7 @@ class CsvParser implements \Iterator, \Countable
      */
     private $position;
     
-    /**
-     *
-     */
+    
     public function __construct($file = NULL)
     {
         //  Iterator position
@@ -118,6 +116,7 @@ class CsvParser implements \Iterator, \Countable
      * @param array $data
      *
      * @return $this
+     * @throws \ErrorException
      */
     private function parse(array &$data)
     {
@@ -138,7 +137,7 @@ class CsvParser implements \Iterator, \Countable
             
             $parsedRow = $this->parseRow($row);
             
-            if (count($parsedRow) !== count($this->headers)  && $this->throw_on_mismatch_columns) {
+            if (count($parsedRow) !== count($this->headers) && $this->throw_on_mismatch_columns) {
                 throw new \ErrorException('Invalid record has ben found at line: ' . $id);
             }
             
@@ -637,5 +636,21 @@ class CsvParser implements \Iterator, \Countable
         }
         
         return $return;
+    }
+    
+    /**
+     * @param bool $value
+     */
+    public function throwOnEmpty(bool $value = TRUE)
+    {
+        $this->throw_on_empty = $value;
+    }
+    
+    /**
+     * @param bool $value
+     */
+    public function throwOnMismatchColumns(bool $value = TRUE)
+    {
+        $this->throw_on_mismatch_columns = $value;
     }
 }
