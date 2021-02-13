@@ -2,7 +2,7 @@ CSV Helper
 ===============
 Parser/Builder of CSV data to file/file to data
 
-This is build for my personal use on big csv data files using Generators.
+This is build for my personal use on big csv data.
 
 Installation
 ------------

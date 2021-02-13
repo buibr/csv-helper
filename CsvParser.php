@@ -85,12 +85,13 @@ class CsvParser implements \Iterator, \Countable
         try {
             $data = \file_get_contents($this->file);
             
-            
             //  Detected encoding from file.
             $this->encoding = @mb_detect_encoding($data, mb_list_encodings(), TRUE);
             
             //  split lines
-            $data = explode("\n", $data);
+            while(($row = fgetcsv($data, 1000, ',')) !== false){
+                $data = explode("\n", $data);
+            }
             
         } catch (\Exception $e) {
             throw new \ErrorException("File is not accessible.");
