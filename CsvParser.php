@@ -19,34 +19,50 @@ class CsvParser implements \Iterator, \Countable
     
     /**
      * Save all headers on this object
+     * @var array
      */
     protected $headers;
     
     /**
      * Seperator of columns.
+     * @var string
      */
     protected $delimeter = ',';
     
     /**
      * "quote" - quote all values with duble quotes on output
+     * @var bool
      */
     protected $enclosure = FALSE;
     
     /**
-     *
+     * @var bool
      */
     protected $encoding = TRUE;
     
     /**
      * Convert all to utf8
+     *
+     * @var bool
      */
     protected $utf8 = TRUE;
+    
     /**
-     * Wheter to skip or not empty records from file.
+     * Whether to skip or throw on empty records from file.
+     *
+     * @var boolean
      */
-    protected $skip_on_empty;
+    protected $throw_on_empty = FALSE;
+    
     /**
-     *  ITERATOR POSITION
+     * In case we find any record that has les or more columns than headers, will throw an error.
+     *
+     * @var bool
+     */
+    protected $throw_on_mismatch_columns = TRUE;
+    
+    /**
+     * @var int
      */
     private $position;
     
@@ -83,51 +99,67 @@ class CsvParser implements \Iterator, \Countable
         $this->file = $file ? $file : $this->file;
         
         try {
-            $data = \file_get_contents($this->file);
+            $data = \file_get_contents($this->file, 'r');
             
             //  Detected encoding from file.
             $this->encoding = @mb_detect_encoding($data, mb_list_encodings(), TRUE);
             
             //  split lines
-            while(($row = fgetcsv($data, 1000, ',')) !== false){
-                $data = explode("\n", $data);
-            }
+            $data = explode("\n", $data);
+            
+            return $this->parse($data);
             
         } catch (\Exception $e) {
-            throw new \ErrorException("File is not accessible.");
+            throw new \ErrorException($e);
         }
-        
-        return $this->parse($data);
     }
     
     /**
-     * Make normal rows to data arrays
-     * @return CsvParser $this
+     * @param array $data
+     *
+     * @return $this
      */
     private function parse(array &$data)
     {
+        $this->headers = $this->parseRow($data[0]);
+        
+        array_shift($data);
+        
         //  make data.
-        foreach ($data as &$row) {
+        foreach ($data as $id => &$row) {
+            
+            if ($this->throw_on_empty && empty($row)) {
+                throw new \ErrorException('Invalid file. Detected empty record.');
+            }
             
             if (empty($row)) {
                 continue;
             }
             
-            if ($this->utf8) {
-                $row = @mb_convert_encoding($row, "UTF-8", $this->encoding);
+            $parsedRow = $this->parseRow($row);
+            
+            if (count($parsedRow) !== count($this->headers)  && $this->throw_on_mismatch_columns) {
+                throw new \ErrorException('Invalid record has ben found at line: ' . $id);
             }
             
-            //  to array
-            $this->data[] = @\str_getcsv($row, $this->delimeter, $this->enclosure);
+            $this->data[] = $parsedRow;
         }
         
-        //
-        $this->headers = $this->data[0];
-        
-        //  remove the firs element as its headers
-        @\array_shift($this->data);
-        
         return $this;
+    }
+    
+    /**
+     * @param string $row
+     *
+     * @return array
+     */
+    private function parseRow(string &$row = '')
+    {
+        if ($this->utf8) {
+            $row = @mb_convert_encoding($row, "UTF-8", $this->encoding);
+        }
+        
+        return \str_getcsv($row, $this->delimeter, $this->enclosure);
     }
     
     /**
@@ -413,7 +445,7 @@ class CsvParser implements \Iterator, \Countable
                 continue;
             }
             
-            $content .= implode($this->delimeter, \array_values($row)) . "\n";
+            $content .= implode($this->delimeter, \array_values($row)) . PHP_EOL;
         }
         
         return $content;

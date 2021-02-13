@@ -12,6 +12,7 @@ class FromFileTest extends TestCase
         $csv->fromFile(__DIR__ . '/data/xml.xml');
         
         $this->assertNotEmpty($csv->getRaw());
+        
         $this->assertNotEmpty($csv->getHeaders());
         
         return $csv;
