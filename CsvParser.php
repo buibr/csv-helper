@@ -2,9 +2,6 @@
 
 namespace buibr\csvhelper;
 
-use Countable;
-use Iterator;
-
 /**
  * This is just an example.
  */
@@ -14,103 +11,138 @@ class CsvParser implements \Iterator, \Countable
      * This is the file from where we get data.
      */
     public $file;
-
+    
     /**
      * This is the data where we put all procesed records
      */
     protected $data;
-
+    
     /**
      * Save all headers on this object
      */
     protected $headers;
-
+    
     /**
      * Seperator of columns.
      */
     protected $delimeter = ',';
-
+    
     /**
      * "quote" - quote all values with duble quotes on output
      */
-    protected $enclosure = false;
-
+    protected $enclosure = FALSE;
+    
     /**
-     *  
+     *
      */
-    protected $encoding = true;
-
+    protected $encoding = TRUE;
+    
     /**
      * Convert all to utf8
      */
-    protected $utf8 = true;
-
-    /**
-     *  ITERATOR POSITION
-     */
-    private $position;
-
+    protected $utf8 = TRUE;
     /**
      * Wheter to skip or not empty records from file.
      */
     protected $skip_on_empty;
-
-
     /**
-     * 
+     *  ITERATOR POSITION
      */
-    public function __construct( $file = null )
+    private $position;
+    
+    /**
+     *
+     */
+    public function __construct($file = NULL)
     {
         //  Iterator position
         $this->position = 0;
-
-        if(empty($file)){
+        
+        if (empty($file)) {
             return $this;
         }
-
+        
         //  parse the file.
         return $this->fromFile($file);
     }
-
-
+    
     /**
-     *  Parse data from file provided here or from class instantance
-     * @param stirng $file  the file to parse from.
-     * @return CsvParser $this
+     * Parse data from file provided here or from class instantance
+     *
+     * @param null $file
+     *
+     * @return \buibr\csvhelper\CsvParser
+     * @throws \ErrorException
      */
-    public function fromFile( $file = null )
+    public function fromFile($file = NULL)
     {
-        if(empty($file) && empty($this->file))
-        {
+        if (empty($file) && empty($this->file)) {
             throw new \ErrorException("File is not set.");
         }
-
+        
         $this->file = $file ? $file : $this->file;
-
-        if(!\is_readable($this->file))
-        {
-            throw new \ErrorException("File is not found");
-        }
-
-        $data = \file_get_contents($this->file);
-
-        if(empty($data))
-        {
-            throw new \ErrorException("Empty file uploaded.");
+        
+        try {
+            $data = \file_get_contents($this->file);
+            
+            
+            //  Detected encoding from file.
+            $this->encoding = @mb_detect_encoding($data, mb_list_encodings(), TRUE);
+            
+            //  split lines
+            $data = explode("\n", $data);
+            
+        } catch (\Exception $e) {
+            throw new \ErrorException("File is not accessible.");
         }
         
-        //  Detected encoding from file.
-        $this->encoding = @mb_detect_encoding($data, mb_list_encodings(), true);
-
-        //  split lines 
-        $data     = explode("\n",$data);
-
         return $this->parse($data);
-
     }
-
-
-    /** 
+    
+    /**
+     * Make normal rows to data arrays
+     * @return CsvParser $this
+     */
+    private function parse(array &$data)
+    {
+        //  make data.
+        foreach ($data as &$row) {
+            
+            if (empty($row)) {
+                continue;
+            }
+            
+            if ($this->utf8) {
+                $row = @mb_convert_encoding($row, "UTF-8", $this->encoding);
+            }
+            
+            //  to array
+            $this->data[] = @\str_getcsv($row, $this->delimeter, $this->enclosure);
+        }
+        
+        //
+        $this->headers = $this->data[0];
+        
+        //  remove the firs element as its headers
+        @\array_shift($this->data);
+        
+        return $this;
+    }
+    
+    /**
+     * Add data from content.
+     *
+     * @param string $content
+     *
+     * @return \buibr\csvhelper\CsvParser
+     * @throws \ErrorException
+     */
+    public function fromContent(string &$content)
+    {
+        return $this->fromData($content);
+    }
+    
+    /**
      * Sometimes we have dificulty to get the file read from our application, example from remote url
      * in this case we make sure that we have the content of the file we want to parse then push to this function.
      * example:
@@ -119,41 +151,32 @@ class CsvParser implements \Iterator, \Countable
      *  $csvparser = new CsvParser();
      *  $csvparser->fromData($data);
      * ```
-     * @param stirng $data raw data of the csv file
-     * @return CsvParser $this
+     *
+     * @param string $data
+     *
+     * @return \buibr\csvhelper\CsvParser
+     * @throws \ErrorException
      */
-    public function fromData( string &$data ){
-        if(empty($data))
-        {
+    public function fromData(string &$data)
+    {
+        if (empty($data)) {
             throw new \ErrorException("Data is not set.");
         }
         
         //  Detected encoding from file.
-        $this->encoding = @mb_detect_encoding($data, mb_list_encodings(), true);
-
-        //  split lines 
-        $data     = explode("\n",$data);
-
+        $this->encoding = @mb_detect_encoding($data, mb_list_encodings(), TRUE);
+        
+        //  split lines
+        $data = explode("\n", $data);
+        
         return $this->parse($data);
     }
-
-
-    /**
-     * The same as fromData
-     * @param stirng $data  the file to parse from.
-     * @return CsvParser $this
-     */
-    public function fromContent( string &$content )
-    {
-        return $this->fromData($content);
-    }
-
-
+    
     /**
      *  Parse data from array to this data.
-     *  
+     *
      * Example
-     * ```php 
+     * ```php
      * $arr = [
      *      [
      *          "name",
@@ -169,42 +192,42 @@ class CsvParser implements \Iterator, \Countable
      *      ]
      * ];
      * ```
-     * 
+     *
      * this function is not posible with encoding.
-     * 
-     * @param stirng $data  the file to parse from.
-     * @return CsvParser $this
+     *
+     * @param array $data
+     *
+     * @return $this
+     * @throws \ErrorException
      */
-    public function fromArray( array &$data )
+    public function fromArray(array &$data)
     {
-        if(empty($data))
-        {
+        if (empty($data)) {
             throw new \ErrorException("Data array is not set.");
         }
-
-        // get headers from 
-        $this->headers  = \array_values(\current($data));
-
+        
+        // get headers from
+        $this->headers = \array_values(\current($data));
+        
         //  remove headers
         \array_shift($data);
-
-        //  
-        foreach($data as &$v){
+        
+        //
+        foreach ($data as &$v) {
             $this->data[] = \array_values($v);
         }
-
+        
         //  remove the firs element as its headers
         @\array_shift($this->data);
-
+        
         return $this;
     }
-
-
+    
     /**
      *  Parse data from array to this data.
-     *  
+     *
      * Example
-     * ```php 
+     * ```php
      * $arr = [
      *      [
      *          "name"=>"burhan",
@@ -216,164 +239,84 @@ class CsvParser implements \Iterator, \Countable
      *      ]
      * ];
      * ```
-     * 
+     *
      * this function is not posible with encoding.
-     * 
-     * @param stirng $data  the file to parse from.
-     * @return CsvParser $this
+     *
+     * @param array $data
+     *
+     * @return $this
+     * @throws \ErrorException
      */
-    public function fromAssocArray( array &$data )
+    public function fromAssocArray(array &$data)
     {
-        if(empty($data))
-        {
+        if (empty($data)) {
             throw new \ErrorException("Data array is not set.");
         }
-
-        // get headers from 
-        $this->headers  = \array_keys(current($data));
-
-        //  
-        foreach($data as &$v){
+        
+        // get headers from
+        $this->headers = \array_keys(current($data));
+        
+        //
+        foreach ($data as &$v) {
             $this->data[] = \array_values($v);
         }
-
+        
         return $this;
     }
-
-
-    /**
-     * Make normal rrows to data arrays
-     * @return CsvParser $this
-     */
-    private function parse( array &$data){
-        //  make data.
-        foreach($data as &$row){
-
-            if(empty($row)){
-                continue;
-            }
-
-            if($this->utf8) {
-                $row        = @mb_convert_encoding($row, "UTF-8", $this->encoding);
-            }
-
-            //  to array
-            $this->data[]   = @\str_getcsv($row, $this->delimeter, $this->enclosure);
-        }
-
-        //  
-        $this->headers      = $this->data[0];
-
-        //  remove the firs element as its headers
-        @\array_shift($this->data);
-
-        return $this;
-    }
-
-
+    
     /**
      * Parse full object to arrays with attached headers to each row.
-     * @return array $data;
+     * @return array;
      */
-    public function toArray()
+    public function toArray(): array
     {
         $arr = [];
-        foreach($this->data as &$row)
-        {
-            if(empty($row)){
+        foreach ($this->data as &$row) {
+            if (empty($row)) {
                 continue;
             }
             //  attach keys to object.
-            $arr[]   = @\array_combine($this->headers, $row);
-            
+            $arr[] = @\array_combine($this->headers, $row);
         }
-
+        
         return $arr;
     }
-
-
-    /** 
-     * Retrun only set columns to be returned
-     * @param string $colum - the column to be return as single array
-     * @return array 
-     */
-    public function toColumns( array $columns, bool $associative = false )
-    {
-        if(empty($columns)){
-            throw new \ErrorException("Column not specified.");
-        }
-
-        //  
-        $indexes = [];
-        foreach($columns as $col){
-
-            $cidx = \array_search(trim($col), $this->headers);
-
-            if($cidx === false) 
-            {
-                throw new \ErrorException("This '{$col}' column is not found in headers");
-            }
-
-            $indexes[$col] = $cidx;
-        }
-
-        if(empty($indexes)){
-            throw new \ErrorException("Not found ay column in headers.");
-        }
-
-        $return = [];
-        foreach($this->data as $id=>&$row)
-        {
-            // $return[$id] = $row[$indexes];
-            foreach($indexes as $idkey=>$index){
-                if($associative)
-                    $return[$id][$idkey] = $row[$index];
-                else
-                    $return[$id][$index] = $row[$index];
-            }
-        }
-
-        return $return;
-
-    }
-
-
-    /** 
+    
+    /**
      * Parse all elements and return only one column as specified if exists.
-     * @param string $colum - the column to be return as single array
-     * @return array 
+     *
+     * @param string|null $column
+     *
+     * @return array
+     * @throws \ErrorException
      */
-    public function toColumn( string $column = null )
+    public function toColumn(string $column = NULL): array
     {
-        if(empty($column)){
+        if (empty($column)) {
             throw new \ErrorException("Column not specified.");
         }
-
+        
         //
         $position = \array_search(trim($column), $this->headers);
-
-        // if(!\in_array( trim($column), $this->headers)){
-        if(is_null($position) ) 
-        {
+        
+        //
+        if (is_null($position)) {
             throw new \ErrorException("This '{$column}' column is not found in headers");
         }
-
+        
         $return = [];
-        foreach($this->data as &$row)
-        {
-            $return[]   = $row[$position];
+        foreach ($this->data as &$row) {
+            $return[] = $row[$position];
         }
-
+        
         return $return;
-
     }
-
-
+    
     /**
      * Parse all elements and return only one column as specified  as key in array filled with $value.
-     * 
+     *
      * example if we have:
-     * 
+     *
      * ```csv
      * account,name,email,
      * 109,burhan,burhan@csv.pro
@@ -381,217 +324,285 @@ class CsvParser implements \Iterator, \Countable
      * 102,burhan,burhan@csv.pro
      * 103,burhan,burhan@csv.pro
      * ```
-     * 
+     *
      * and we call :
-     * 
+     *
      * ```php
      * (new CsvParser)->fromFile('path/to/csv')->toColumnFill('account', null);
      * ```
-     * 
+     *
      * the resoult will be:
-     * 
+     *
      * ```
      * Array
      * (
-     *  [109] => 
-     *  [101] => 
-     *  [102] => 
-     *  [103] => 
+     *  [109] =>
+     *  [101] =>
+     *  [102] =>
+     *  [103] =>
      * )
-     * 
-     * 
-     * @param string $colum - the column to be return as single array
-     * @return array 
+     *
+     *
+     * @param string|null $column
+     * @param string|null $value
+     *
+     * @return array
+     * @throws \ErrorException
      */
-    public function toColumnFill( $column = null, $value = null)
+    public function toColumnFill($column = NULL, $value = NULL)
     {
-        if(empty($column)){
+        if (empty($column)) {
             throw new \ErrorException("Column not specified.");
         }
-
+        
         $position = \array_search(trim($column), $this->headers);
-
+        
         // if(!\in_array( trim($column), $this->headers)){
-        if( is_null($position) ) {
+        if (is_null($position)) {
             throw new \ErrorException("This '{$column}' column is not found in headers");
         }
-
+        
         $return = [];
-        foreach($this->data as $id=>&$row)
-        {
-            $return[$row[$position]]    = $value;
+        foreach ($this->data as $id => &$row) {
+            $return[$row[$position]] = $value;
         }
-
+        
         return $return;
-
     }
-
+    
     /**
      * Rebuild csv as content for download or print in raw.
-     * @param string $colum - the column to be return as single array
-     * @return array 
+     *
+     * @return string
      */
     public function toContent()
     {
-        $content = implode($this->delimeter, $this->headers). "\n";
-
-        foreach($this->data as &$row)
-        {
-            if(empty($row)){
+        $content = implode($this->delimeter, $this->headers) . "\n";
+        
+        foreach ($this->data as &$row) {
+            if (empty($row)) {
                 continue;
             }
-
+            
             $content .= implode($this->delimeter, $row) . "\n";
         }
-
+        
         return $content;
     }
-
+    
     /**
-     * Rebuild csv as content for download or print in raw with only defined columns.
-     * @param string $colum - the column to be return as single array
-     * @return array 
+     * Rebuild csv with filtered columns and output as file content.
+     *
+     * @param array $columns
+     *
+     * @return string
+     * @throws \ErrorException
      */
-    public function toContentColumns( array $columns = [] )
+    public function toContentColumns(array $columns = [])
     {
-        if(empty($columns)) {
+        if (empty($columns)) {
             throw new \ErrorException("No columns have ben set. Please use toContent for full conver to content.");
         }
         
-        $rows       = $this->toColumns($columns, true);
-        $content    = implode($this->delimeter, \array_keys($rows[0])). "\n";
-
-        foreach($rows as &$row)
-        {
-            if(empty($row)) {
+        $rows = $this->toColumns($columns, TRUE);
+        $content = implode($this->delimeter, \array_keys($rows[0])) . "\n";
+        
+        foreach ($rows as &$row) {
+            if (empty($row)) {
                 continue;
             }
-
-            $content .= implode($this->delimeter, \array_values($row) ) . "\n";
+            
+            $content .= implode($this->delimeter, \array_values($row)) . "\n";
         }
-
+        
         return $content;
     }
-
-
+    
+    /**
+     * Retrun only set columns to be returned
+     *
+     * @param array $columns
+     * @param bool  $associative
+     *
+     * @return array
+     * @throws \ErrorException
+     */
+    public function toColumns(array $columns, bool $associative = FALSE)
+    {
+        if (empty($columns)) {
+            throw new \ErrorException("Column not specified.");
+        }
+        
+        //
+        $indexes = [];
+        foreach ($columns as $col) {
+            
+            $cidx = \array_search(trim($col), $this->headers);
+            
+            if ($cidx === FALSE) {
+                throw new \ErrorException("This '{$col}' column is not found in headers");
+            }
+            
+            $indexes[$col] = $cidx;
+        }
+        
+        if (empty($indexes)) {
+            throw new \ErrorException("Not found ay column in headers.");
+        }
+        
+        $return = [];
+        foreach ($this->data as $id => &$row) {
+            // $return[$id] = $row[$indexes];
+            foreach ($indexes as $idkey => $index) {
+                if ($associative)
+                    $return[$id][$idkey] = $row[$index];
+                else
+                    $return[$id][$index] = $row[$index];
+            }
+        }
+        
+        return $return;
+    }
+    
     /**
      * Returns headers in one dimensional array
-     * @param  array = php function  to fixx headers.
+     *
+     * @param array = php function  to fixx headers.
+     *
      * @return array
      */
-    public function getHeaders( array $functions = [])
+    public function getHeaders(array $functions = [])
     {
-        if(empty($functions)){
+        if (empty($functions)) {
             return $this->headers;
         }
-
-        foreach($this->headers as $key=>$header)
-        {
-            foreach($functions as $func)
-            {
+        
+        foreach ($this->headers as $key => $header) {
+            foreach ($functions as $func) {
                 $this->headers[$key] = $func($header);
             }
         }
-
+        
         return $this->headers;
     }
-
-
+    
+    
     /**
      * Get raw body without headers
      */
-    public function getRaw(){
+    public
+    function getRaw()
+    {
         return $this->data;
     }
-
-
+    
+    
     /**
      * Get encoding of this file/data
      */
-    public function getEncoding(){
+    public
+    function getEncoding()
+    {
         return $this->encoding;
     }
-
-
-    /**
-     *      SINGLE RECORD FUNCTIONS.
-     */
-
+    
     /**
      * Reset the count to first position.
      */
-    public function rewind() {
+    public function rewind()
+    {
         $this->position = 0;
     }
-
-    /**
-     * One element by corrent position.
-     * @param bool $assoc - return the data as associative array or as one dimension array
-     *  - true = associative array
-     *  - false = one dimensional array.
-     */
-    public function current( $assoc = false) {
-        
-        if($assoc) {
-            return @\array_combine($this->headers, $this->data[$this->position]);
-        }
-
-        return $this->data[$this->position];
-    }
-
-    public function key() {
+    
+    public function key()
+    {
         return $this->position;
     }
-
-    public function next() {
+    
+    public function next()
+    {
         ++$this->position;
     }
-
-    public function valid() {
+    
+    public function valid()
+    {
         return isset($this->data[$this->position]);
     }
-
-    public function count(){
+    
+    /**
+     * @return int
+     */
+    public function count()
+    {
         return count($this->data);
     }
-
-    public function columns(array $columns, $associative = false){
-
+    
+    /**
+     * Current element column value.
+     *
+     * @param string $column
+     *
+     * @return mixed
+     * @throws \ErrorException
+     */
+    public function column(string $column)
+    {
+        $cidx = \array_search($column, $this->headers);
+        
+        if (is_null($cidx)) {
+            throw new \ErrorException("This '{$column}' column is not found in headers");
+        }
+        
+        return $this->current()[$cidx];
+    }
+    
+    /**
+     * One element by corrent position.
+     *
+     * @param boolean $associative
+     *
+     * @return array|mixed
+     */
+    public function current($associative = FALSE)
+    {
+        
+        if ($associative) {
+            return @\array_combine($this->headers, $this->data[$this->position]);
+        }
+        
+        return $this->data[$this->position];
+    }
+    
+    /**
+     * @param array $columns
+     * @param false $associative
+     *
+     * @return array
+     * @throws \ErrorException
+     */
+    public function columns(array $columns, $associative = FALSE)
+    {
+        
         $indexes = [];
-        foreach($columns as $col){
-
+        foreach ($columns as $col) {
+            
             $cidx = \array_search(trim($col), $this->headers);
-
-            if($cidx === false) {
+            
+            if ($cidx === FALSE) {
                 throw new \ErrorException("This '{$col}' column is not found in headers");
             }
-
+            
             $indexes[$col] = $cidx;
         }
-
-        // $return[$id] = $row[$indexes];
+        
         $return = [];
-        // $return[$id] = $row[$indexes];
-        foreach($indexes as $idkey=>$index){
-            if($associative)
+        foreach ($indexes as $idkey => $index) {
+            if ($associative)
                 $return[$idkey] = $this->current()[$index];
             else
                 $return[$index] = $this->current()[$index];
         }
-
+        
         return $return;
-    }
-
-    public function column(string $column) {
-        //  
-        $cidx = \array_search($column, $this->headers);
-
-        //  
-        if(is_null($cidx) ) 
-        {
-            throw new \ErrorException("This '{$column}' column is not found in headers");
-        }
-
-        return $this->current()[$cidx];
     }
 }

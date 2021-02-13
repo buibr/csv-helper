@@ -2,6 +2,7 @@ CSV Helper
 ===============
 Parser/Builder of CSV data to file/file to data
 
+This is build for my personal use on big csv data files using Generators.
 
 Installation
 ------------
@@ -13,20 +14,18 @@ Either run
 ```
 composer require --prefer-dist buibr/csv-helper "^1.5"
 ```
-
-or add
-
+alternatively add
 ```
 "buibr/csv-helper": "*"
 ```
 
-to the require section of your `composer.json` file.
+to the required section of your `composer.json` file.
 
 
 Usage
 ------------
 
-Get data as array of format [$key=>$value]:
+#### Get data as array:
 
 ```php
 <?php 
@@ -37,21 +36,21 @@ $data   = $parser->fromFile()->toArray();
 
 ?>
 ```
-
-or
-
+#### Get data as array of format from file
 ```php
 <?php 
-use buibr\csvhelper\CsvParser; 
-
+use buibr\csvhelper\CsvParser;
+ 
 $data = (new CsvParser)->fromFile('path/to/file')->toArray();
 
 ?>
 ```
 
-Get only one column value as one dimensional array.
 
-Example
+
+### Get only one column as one dimensional array.
+
+Example `file.csv`
 ```csv
 name,email,phone
 aaa,bbb,ccc
@@ -59,27 +58,18 @@ ddd,eee,fff
 ggg,hhh,iii
 ```
 
-run
-
 ```php
 
 $data = (new CsvParser)->fromFile('path/to/file')->toColumn('email');
 
-```
-
-response 
-
-```php
-[
+$data = [
     0 => "bbb",
     1 => "eee",
     2 => "hhh"
-]
+];
 ```
 
-
-From 1.5.4 Get only neded columns.
-------------
+#### From 1.5.4 Get only neded columns.
 
 ```php
 
@@ -137,7 +127,7 @@ $second = $csv->current();
 
 ```
 
-OR
+Loop through csv records.
 
 ```php
 
@@ -145,7 +135,7 @@ $csv    = new CsvParser('path/to/file');
 
 while( $csv->valid() ){
 
-    //  get current item as array.
+    //  get item as array.
     $item = $csv->current(true);
     
     //  get the the value of Firstname column from current record.
@@ -154,9 +144,8 @@ while( $csv->valid() ){
     // get some of columns 
     $fullname = \implode(' ', $csv->columns(['Firstname','Lastname']));
 
-    //  
-
     $csv->next();
 }
 ```
 
+### For more use cases, explore `test` folder in this repo.

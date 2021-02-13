@@ -1,13 +1,13 @@
 <?php
-use PHPUnit\Framework\TestCase;
 
 use buibr\csvhelper\CsvParser;
+use PHPUnit\Framework\TestCase;
 
 class FromContentTest extends TestCase
 {
+    
     public function testContent()
     {
-        
         $csv = new CsvParser();
 
         $data = \file_get_contents(__DIR__ . '/data/xml.xml');
@@ -55,10 +55,9 @@ class FromContentTest extends TestCase
         $this->assertEquals('Ibrahimi', $odm[0][1]);
 
     }
-
-
+    
     /**
-     * @depends                  testContent
+     * @depends testContent
      */
     public function testExceptionOnWrongColumns(CsvParser $csv)
     {
@@ -69,7 +68,7 @@ class FromContentTest extends TestCase
 
 
     /**
-     * @depends                  testContent
+     * @depends testContent
      */
     public function testIteratorFunctions(CsvParser $csv) {
 
@@ -94,7 +93,7 @@ class FromContentTest extends TestCase
 
     
     /**
-     * @depends                  testContent
+     * @depends testContent
      */
     public function testToContentColumns(CsvParser $csv) {
         $res = $csv->toContentColumns(['Email','Phone']);
